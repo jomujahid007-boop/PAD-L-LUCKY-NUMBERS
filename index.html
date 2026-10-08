@@ -1,0 +1,284 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+
+<head>
+
+<meta name="viewport" content="width=device-width,initial-scale=1">
+
+<style>
+
+body {
+  margin: 0;
+  background: #07131a;
+  color: white;
+  font-family: Arial, sans-serif;
+  text-align: center;
+}
+
+.container {
+  max-width: 500px;
+  margin: auto;
+  padding: 50px 20px;
+}
+
+.logo {
+  color: #d8ff4f;
+  font-weight: bold;
+  letter-spacing: 3px;
+  font-size: 18px;
+}
+
+h1 {
+  font-size: 34px;
+  margin: 25px 0 10px;
+}
+
+.subtitle {
+  color: #a9b8bd;
+  margin-bottom: 30px;
+}
+
+.box {
+  background: #102932;
+  border: 1px solid #31515c;
+  border-radius: 20px;
+  padding: 25px;
+}
+
+label {
+  display: block;
+  margin-bottom: 12px;
+  font-weight: bold;
+}
+
+input {
+  width: 100%;
+  box-sizing: border-box;
+  background: #07131a;
+  border: 1px solid #45636d;
+  color: white;
+  border-radius: 12px;
+  padding: 16px;
+  font-size: 20px;
+  text-align: center;
+  direction: ltr;
+}
+
+button {
+  width: 100%;
+  margin-top: 18px;
+  border: 0;
+  background: #d8ff4f;
+  color: #081017;
+  border-radius: 15px;
+  padding: 17px;
+  font-size: 20px;
+  font-weight: bold;
+}
+
+button:disabled {
+  opacity: .5;
+}
+
+.result {
+  display: none;
+  margin-top: 25px;
+  background: #102932;
+  border-radius: 20px;
+  padding: 25px;
+}
+
+.prize {
+  color: #d8ff4f;
+  font-size: 30px;
+  font-weight: bold;
+  margin: 20px 0;
+}
+
+.code {
+  border: 1px dashed #78909a;
+  padding: 14px;
+  border-radius: 10px;
+  direction: ltr;
+  letter-spacing: 2px;
+  font-weight: bold;
+}
+
+.error {
+  color: #ff7777;
+  font-weight: bold;
+}
+
+</style>
+
+</head>
+
+<body>
+
+<div class="container">
+
+  <div class="logo">
+    PAD-L SUITES
+  </div>
+
+  <h1>
+    LUCKY NUMBER 🎾
+  </h1>
+
+  <div class="subtitle">
+    أدخل رقم جوالك واحصل على فرصتك 🎁
+  </div>
+
+  <div class="box">
+
+    <label>
+      رقم الجوال
+    </label>
+
+    <input
+      id="phone"
+      type="tel"
+      inputmode="numeric"
+      placeholder="05XXXXXXXX"
+      maxlength="10"
+    >
+
+    <button
+      id="playButton"
+      onclick="playGame()"
+    >
+      🎁 جرّب حظك
+    </button>
+
+  </div>
+
+  <div
+    id="result"
+    class="result"
+  >
+
+    <div id="message"></div>
+
+    <div
+      id="prize"
+      class="prize"
+    ></div>
+
+    <div
+      id="code"
+      class="code"
+    ></div>
+
+  </div>
+
+</div>
+
+
+<script>
+
+function playGame() {
+
+  const input =
+    document.getElementById("phone");
+
+  const button =
+    document.getElementById("playButton");
+
+  const result =
+    document.getElementById("result");
+
+  const message =
+    document.getElementById("message");
+
+  const prize =
+    document.getElementById("prize");
+
+  const code =
+    document.getElementById("code");
+
+  const phone =
+    input.value.trim();
+
+
+  if (!/^05\d{8}$/.test(phone)) {
+
+    alert(
+      "أدخل رقم جوال سعودي صحيح"
+    );
+
+    return;
+  }
+
+
+  button.disabled = true;
+
+  result.style.display = "block";
+
+  message.className = "";
+
+  message.textContent =
+    "جاري الكشف...";
+
+  prize.textContent = "";
+
+  code.textContent = "";
+
+
+  google.script.run
+
+    .withSuccessHandler(function(response) {
+
+      button.disabled = false;
+
+
+      if (!response || !response.ok) {
+
+        message.className = "error";
+
+        message.textContent =
+          response && response.message
+            ? response.message
+            : "حدث خطأ";
+
+        return;
+      }
+
+
+      message.textContent =
+        "🎉 مبروك!";
+
+
+      prize.textContent =
+        response.prize;
+
+
+      code.textContent =
+        response.code;
+
+    })
+
+
+    .withFailureHandler(function(error) {
+
+      button.disabled = false;
+
+      message.className =
+        "error";
+
+      message.textContent =
+        "حدث خطأ، حاول مرة أخرى.";
+
+      console.error(error);
+
+    })
+
+
+    .play(phone);
+
+}
+
+</script>
+
+</body>
+
+</html>
