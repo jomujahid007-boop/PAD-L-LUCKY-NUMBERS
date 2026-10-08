@@ -230,8 +230,7 @@ function playGame() {
 
 
   const callbackName =
-    "padlCallback_" +
-    Date.now();
+    "padlCallback_" + Date.now();
 
 
   window[callbackName] = function(response) {
@@ -254,17 +253,15 @@ function playGame() {
     }
 
 
-    message.textContent =
-      "🎉 مبروك!";
+    message.textContent = "🎉 مبروك!";
 
-    prize.textContent =
-      response.prize;
+    prize.textContent = response.prize;
 
-    code.textContent =
-      response.code;
+    code.textContent = response.code;
 
 
     cleanup();
+
   };
 
 
@@ -290,6 +287,7 @@ function playGame() {
       "تعذر الاتصال بالنظام. حاول مرة أخرى.";
 
     cleanup();
+
   };
 
 
@@ -308,120 +306,7 @@ function playGame() {
 
 }
 
-  const input =
-    document.getElementById("phone");
-
-  const button =
-    document.getElementById("playButton");
-
-  const result =
-    document.getElementById("result");
-
-  const message =
-    document.getElementById("message");
-
-  const prize =
-    document.getElementById("prize");
-
-  const code =
-    document.getElementById("code");
-
-  const phone =
-    input.value.trim();
-
-
-  if (!/^05\d{8}$/.test(phone)) {
-
-    alert(
-      "أدخل رقم جوال سعودي صحيح"
-    );
-
-    return;
-  }
-
-
-  button.disabled = true;
-
-  result.style.display = "block";
-
-  message.className = "";
-
-  message.textContent =
-    "جاري الكشف...";
-
-  prize.textContent = "";
-
-  code.textContent = "";
-
-
-  try {
-
-    const response =
-      await fetch(API_URL, {
-
-        method: "POST",
-
-        headers: {
-          "Content-Type": "text/plain;charset=utf-8"
-        },
-
-        body: JSON.stringify({
-          phone: phone
-        })
-
-      });
-
-
-    const data =
-      await response.json();
-
-
-    button.disabled = false;
-
-
-    if (!data || !data.ok) {
-
-      message.className = "error";
-
-      message.textContent =
-        data && data.message
-          ? data.message
-          : "حدث خطأ";
-
-      return;
-    }
-
-
-    message.textContent =
-      "🎉 مبروك!";
-
-
-    prize.textContent =
-      data.prize;
-
-
-    code.textContent =
-      data.code;
-
-
-  } catch (error) {
-
-    button.disabled = false;
-
-    message.className =
-      "error";
-
-    message.textContent =
-      "تعذر الاتصال بالنظام. حاول مرة أخرى.";
-
-    console.error(error);
-
-  }
-
-}
-
 </script>
-
 </body>
 
 </html>
