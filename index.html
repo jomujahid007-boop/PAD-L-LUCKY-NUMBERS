@@ -184,7 +184,129 @@ const API_URL =
 "https://script.google.com/macros/s/AKfycbyYvWo70hkG57tU_D58yqD6vnUlOKSkiWV0ElkJ9j8-xt4jjHkgLXJJBbF8sugJFNZy/exec";
 
 
-async function playGame() {
+function playGame() {
+
+  const input =
+    document.getElementById("phone");
+
+  const button =
+    document.getElementById("playButton");
+
+  const result =
+    document.getElementById("result");
+
+  const message =
+    document.getElementById("message");
+
+  const prize =
+    document.getElementById("prize");
+
+  const code =
+    document.getElementById("code");
+
+  const phone =
+    input.value.trim();
+
+
+  if (!/^05\d{8}$/.test(phone)) {
+
+    alert("أدخل رقم جوال سعودي صحيح");
+
+    return;
+  }
+
+
+  button.disabled = true;
+
+  result.style.display = "block";
+
+  message.className = "";
+
+  message.textContent = "جاري الكشف...";
+
+  prize.textContent = "";
+
+  code.textContent = "";
+
+
+  const callbackName =
+    "padlCallback_" +
+    Date.now();
+
+
+  window[callbackName] = function(response) {
+
+    button.disabled = false;
+
+
+    if (!response || !response.ok) {
+
+      message.className = "error";
+
+      message.textContent =
+        response && response.message
+          ? response.message
+          : "حدث خطأ";
+
+      cleanup();
+
+      return;
+    }
+
+
+    message.textContent =
+      "🎉 مبروك!";
+
+    prize.textContent =
+      response.prize;
+
+    code.textContent =
+      response.code;
+
+
+    cleanup();
+  };
+
+
+  const script =
+    document.createElement("script");
+
+
+  script.src =
+    API_URL +
+    "?phone=" +
+    encodeURIComponent(phone) +
+    "&callback=" +
+    callbackName;
+
+
+  script.onerror = function() {
+
+    button.disabled = false;
+
+    message.className = "error";
+
+    message.textContent =
+      "تعذر الاتصال بالنظام. حاول مرة أخرى.";
+
+    cleanup();
+  };
+
+
+  document.body.appendChild(script);
+
+
+  function cleanup() {
+
+    delete window[callbackName];
+
+    if (script.parentNode) {
+      script.parentNode.removeChild(script);
+    }
+
+  }
+
+}
 
   const input =
     document.getElementById("phone");
