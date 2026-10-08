@@ -3,7 +3,12 @@
 
 <head>
 
-<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta charset="UTF-8">
+
+<meta name="viewport"
+      content="width=device-width,initial-scale=1">
+
+<title>PAD-L Lucky Number</title>
 
 <style>
 
@@ -173,10 +178,13 @@ button:disabled {
 
 </div>
 
-
 <script>
 
-function playGame() {
+const API_URL =
+"https://script.google.com/macros/s/AKfycbyYvWo70hkG57tU_D58yqD6vnUlOKSkiWV0ElkJ9j8-xt4jjHkgLXJJBbF8sugJFNZy/exec";
+
+
+async function playGame() {
 
   const input =
     document.getElementById("phone");
@@ -224,56 +232,69 @@ function playGame() {
   code.textContent = "";
 
 
-  google.script.run
+  try {
 
-    .withSuccessHandler(function(response) {
+    const response =
+      await fetch(API_URL, {
 
-      button.disabled = false;
+        method: "POST",
 
+        headers: {
+          "Content-Type": "text/plain;charset=utf-8"
+        },
 
-      if (!response || !response.ok) {
+        body: JSON.stringify({
+          phone: phone
+        })
 
-        message.className = "error";
-
-        message.textContent =
-          response && response.message
-            ? response.message
-            : "حدث خطأ";
-
-        return;
-      }
+      });
 
 
-      message.textContent =
-        "🎉 مبروك!";
+    const data =
+      await response.json();
 
 
-      prize.textContent =
-        response.prize;
+    button.disabled = false;
 
 
-      code.textContent =
-        response.code;
+    if (!data || !data.ok) {
 
-    })
-
-
-    .withFailureHandler(function(error) {
-
-      button.disabled = false;
-
-      message.className =
-        "error";
+      message.className = "error";
 
       message.textContent =
-        "حدث خطأ، حاول مرة أخرى.";
+        data && data.message
+          ? data.message
+          : "حدث خطأ";
 
-      console.error(error);
+      return;
+    }
 
-    })
+
+    message.textContent =
+      "🎉 مبروك!";
 
 
-    .play(phone);
+    prize.textContent =
+      data.prize;
+
+
+    code.textContent =
+      data.code;
+
+
+  } catch (error) {
+
+    button.disabled = false;
+
+    message.className =
+      "error";
+
+    message.textContent =
+      "تعذر الاتصال بالنظام. حاول مرة أخرى.";
+
+    console.error(error);
+
+  }
 
 }
 
