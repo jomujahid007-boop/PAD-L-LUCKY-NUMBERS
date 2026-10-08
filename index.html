@@ -216,55 +216,84 @@ function playGame() {
   code.textContent = "";
 
 
-  fetch(
-    SCRIPT_URL + "?action=play&phone=" +
-    encodeURIComponent(phone)
-  )
-
-  .then(response => response.json())
-
-  .then(response => {
-
-    button.disabled = false;
+  const callbackName =
+    "luckyCallback_" + Date.now();
 
 
-    if (!response || !response.ok) {
+  window[callbackName] =
+    function(response) {
 
-      message.className = "error";
+      button.disabled = false;
+
+
+      if (!response || !response.ok) {
+
+        message.className = "error";
+
+        message.textContent =
+          response && response.message
+            ? response.message
+            : "حدث خطأ";
+
+        cleanup();
+
+        return;
+      }
+
 
       message.textContent =
-        response && response.message
-          ? response.message
-          : "حدث خطأ";
+        "🎉 مبروك!";
 
-      return;
+      prize.textContent =
+        response.prize;
+
+      code.textContent =
+        response.code;
+
+
+      cleanup();
+    };
+
+
+  const script =
+    document.createElement("script");
+
+
+  script.src =
+    SCRIPT_URL +
+    "?action=play" +
+    "&phone=" +
+    encodeURIComponent(phone) +
+    "&callback=" +
+    callbackName;
+
+
+  script.onerror =
+    function() {
+
+      button.disabled = false;
+
+      message.className =
+        "error";
+
+      message.textContent =
+        "تعذر الاتصال بالخادم.";
+
+      cleanup();
+    };
+
+
+  document.body.appendChild(script);
+
+
+  function cleanup() {
+
+    delete window[callbackName];
+
+    if (script.parentNode) {
+      script.parentNode.removeChild(script);
     }
-
-
-    message.textContent =
-      "🎉 مبروك!";
-
-    prize.textContent =
-      response.prize;
-
-    code.textContent =
-      response.code;
-
-  })
-
-  .catch(error => {
-
-    button.disabled = false;
-
-    message.className =
-      "error";
-
-    message.textContent =
-      "حدث خطأ، حاول مرة أخرى.";
-
-    console.error(error);
-
-  });
+  }
 
 }
 
