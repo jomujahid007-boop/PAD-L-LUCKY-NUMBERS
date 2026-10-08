@@ -2,16 +2,12 @@
 <html lang="ar" dir="rtl">
 
 <head>
-
 <meta charset="UTF-8">
-
-<meta name="viewport"
-      content="width=device-width,initial-scale=1">
+<meta name="viewport" content="width=device-width, initial-scale=1">
 
 <title>PAD-L Lucky Number</title>
 
 <style>
-
 body {
   margin: 0;
   background: #07131a;
@@ -113,7 +109,6 @@ button:disabled {
   color: #ff7777;
   font-weight: bold;
 }
-
 </style>
 
 </head>
@@ -157,22 +152,13 @@ button:disabled {
 
   </div>
 
-  <div
-    id="result"
-    class="result"
-  >
+  <div id="result" class="result">
 
     <div id="message"></div>
 
-    <div
-      id="prize"
-      class="prize"
-    ></div>
+    <div id="prize" class="prize"></div>
 
-    <div
-      id="code"
-      class="code"
-    ></div>
+    <div id="code" class="code"></div>
 
   </div>
 
@@ -180,8 +166,8 @@ button:disabled {
 
 <script>
 
-const API_URL =
-"https://script.google.com/macros/s/AKfycbx1rZMN24iw0fUb02OK4vUyJypqZfuqazDhynNf3CbaBOaFtHDfs6IAnp9WM8dahjEQ/exec";
+const SCRIPT_URL =
+"https://script.google.com/macros/s/AKfycbyYvWo70hkG57tU_D58yqD6vnUlOKSkiWV0ElkJ9j8-xt4jjHkgLXJJBbF8sugJFNZy/exec";
 
 
 function playGame() {
@@ -222,18 +208,22 @@ function playGame() {
 
   message.className = "";
 
-  message.textContent = "جاري الكشف...";
+  message.textContent =
+    "جاري الكشف...";
 
   prize.textContent = "";
 
   code.textContent = "";
 
 
-  const callbackName =
-    "padlCallback_" + Date.now();
+  fetch(
+    SCRIPT_URL + "?action=play&phone=" +
+    encodeURIComponent(phone)
+  )
 
+  .then(response => response.json())
 
-  window[callbackName] = function(response) {
+  .then(response => {
 
     button.disabled = false;
 
@@ -247,66 +237,39 @@ function playGame() {
           ? response.message
           : "حدث خطأ";
 
-      cleanup();
-
       return;
     }
 
 
-    message.textContent = "🎉 مبروك!";
+    message.textContent =
+      "🎉 مبروك!";
 
-    prize.textContent = response.prize;
+    prize.textContent =
+      response.prize;
 
-    code.textContent = response.code;
+    code.textContent =
+      response.code;
 
+  })
 
-    cleanup();
-
-  };
-
-
-  const script =
-    document.createElement("script");
-
-
-  script.src =
-    API_URL +
-    "?phone=" +
-    encodeURIComponent(phone) +
-    "&callback=" +
-    callbackName;
-
-
-  script.onerror = function() {
+  .catch(error => {
 
     button.disabled = false;
 
-    message.className = "error";
+    message.className =
+      "error";
 
     message.textContent =
-      "تعذر الاتصال بالنظام. حاول مرة أخرى.";
+      "حدث خطأ، حاول مرة أخرى.";
 
-    cleanup();
+    console.error(error);
 
-  };
-
-
-  document.body.appendChild(script);
-
-
-  function cleanup() {
-
-    delete window[callbackName];
-
-    if (script.parentNode) {
-      script.parentNode.removeChild(script);
-    }
-
-  }
+  });
 
 }
 
 </script>
+
 </body>
 
 </html>
